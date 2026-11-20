@@ -1,0 +1,175 @@
+// features/archivos/archivosSlice.js
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchArchivos } from "@/store/features/archivos/thunks/todosArchivos";
+import { crearArchivo } from "@/store/features/archivos/thunks/crearArchivo";
+import { actualizarArchivo } from "@/store/features/archivos/thunks/actualizarArchivo";
+import { eliminarRestaurarArchivo } from "@/store/features/archivos/thunks/eliminarRestaurarArchivo";
+import { fetchArchivosIdInstitucion } from "@/store/features/archivos/thunks/archivosIdInstitucion";
+import { fetchArchivosIdDepartamento } from "@/store/features/archivos/thunks/archivosIdDepartamento";
+import { fetchArchivosIdEstante } from "@/store/features/archivos/thunks/archivosIdEstante";
+import { fetchArchivosIdCarpeta } from "@/store/features/archivos/thunks/archivosIdCarpeta";
+import { descargarArchivo } from "@/store/features/archivos/thunks/descargarArchivos";
+
+const archivosSlice = createSlice({
+  name: "archivos",
+  initialState: {
+    archivos: [],
+    loading: false,
+    error: null,
+    archivoActual: {
+      idArchivo: null,
+      nameArchivo: null,
+      name_original: null,
+      name_sistema: null,
+      codigo: null,
+      path: null,
+    },
+  },
+  reducers: {
+    setArchivoActual: (state, action) => {
+      state.archivoActual = {
+        idArchivo: action.payload.idArchivo,
+        nameArchivo: action.payload.nameArchivo,
+        name_original: action.payload.name_original,
+        name_sistema: action.payload.name_sistema,
+        codigo: action.payload.codigo,
+        path: action.payload.path,
+      };
+    },
+    clearArchivoActual: (state) => {
+      state.archivoActual = {
+        idArchivo: null,
+        nameArchivo: null,
+        name_original: null,
+        name_sistema: null,
+        codigo: null,
+        path: null,
+      };
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchArchivos.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchArchivos.fulfilled, (state, action) => {
+        state.loading = false;
+        state.archivos = action.payload;
+      })
+      .addCase(fetchArchivos.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchArchivosIdInstitucion.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchArchivosIdInstitucion.fulfilled, (state, action) => {
+        state.loading = false;
+        state.archivos = action.payload;
+      })
+      .addCase(fetchArchivosIdInstitucion.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchArchivosIdDepartamento.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchArchivosIdDepartamento.fulfilled, (state, action) => {
+        state.loading = false;
+        state.archivos = action.payload;
+      })
+      .addCase(fetchArchivosIdDepartamento.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchArchivosIdEstante.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchArchivosIdEstante.fulfilled, (state, action) => {
+        state.loading = false;
+        state.archivos = action.payload;
+      })
+      .addCase(fetchArchivosIdEstante.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchArchivosIdCarpeta.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchArchivosIdCarpeta.fulfilled, (state, action) => {
+        state.loading = false;
+        state.archivos = action.payload;
+      })
+      .addCase(fetchArchivosIdCarpeta.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(crearArchivo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(crearArchivo.fulfilled, (state, action) => {
+        state.loading = false;
+        state.archivos.push(action.payload);
+      })
+      .addCase(crearArchivo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error;
+      })
+      .addCase(actualizarArchivo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(actualizarArchivo.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.archivos.findIndex(
+          (archivo) => archivo.id === action.payload.id,
+        );
+        if (index !== -1) {
+          state.archivos[index] = action.payload;
+        }
+      })
+      .addCase(actualizarArchivo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error;
+      })
+      .addCase(eliminarRestaurarArchivo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(eliminarRestaurarArchivo.fulfilled, (state, action) => {
+        state.loading = false;
+        const archivoActualizado = action.payload;
+
+        const index = state.archivos.findIndex(
+          (u) => u.id === archivoActualizado.id,
+        );
+        if (index !== -1) {
+          state.archivos[index] = archivoActualizado;
+        }
+      })
+      .addCase(eliminarRestaurarArchivo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(descargarArchivo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(descargarArchivo.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(descargarArchivo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+      });
+  },
+});
+
+export const { setArchivoActual, clearArchivoActual } = archivosSlice.actions;
+export default archivosSlice.reducer;

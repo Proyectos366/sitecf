@@ -1,0 +1,800 @@
+generator client {
+  provider   = "prisma-client"
+  output     = "../src/generated/prisma"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model role {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  descripcion String?  @default("sin descripcion")
+  borrado     Boolean  @default(false)
+  updatedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  usuarios usuario[] @relation(name: "UsuarioRole")
+}
+
+model usuario {
+  id           Int       @id @default(autoincrement())
+  cedula       Int       @unique
+  nombre       String
+  nombre_dos   String?   @default("")
+  apellido     String
+  apellido_dos String?   @default("")
+  sector       String?   @default("")
+  direccion    String?   @default("")
+  telefono     String?   @unique
+  genero       Boolean   @default(true)
+  f_n          DateTime
+  f_ingreso    DateTime  @default(now())
+  f_egreso     DateTime?
+  profesion    String?   @default("")
+  resolucion   String    @unique
+  correo       String    @unique
+  token        String    @unique
+  clave        String
+  borrado      Boolean   @default(false)
+  validado     Boolean   @default(false)
+  id_rol       Int // Clave foránea hacia role
+  id_usuario   Int?
+  id_nomina    Int?
+  updatedAt    DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+
+  // Relaciones
+  roles                  role           @relation(name: "UsuarioRole", fields: [id_rol], references: [id])
+  creador                usuario?       @relation(name: "CreadorUsuarios", fields: [id_usuario], references: [id])
+  usuarios_creados       usuario[]      @relation(name: "CreadorUsuarios")
+  imagenes               imagen[] // Relación uno a muchos con Imagen
+  CreadorInstitucion     institucion[]  @relation(name: "CreadorInstitucion")
+  MiembrosInstitucion    institucion[]  @relation(name: "MiembrosInstitucion")
+  CreadorDeDepartamentos departamento[] @relation(name: "CreadorDepartamento")
+  MiembrosDepartamentos  departamento[] @relation(name: "MiembrosDepartamento")
+  CreadorEstantes        estante[]      @relation(name: "CreadorEstante")
+  CreadorCarpetas        carpeta[]      @relation(name: "CreadorCarpeta")
+  CreadorArchivos        archivo[]      @relation(name: "CreadorArchivo")
+
+  creadorDeComunas   comuna[]    @relation(name: "CreadorComuna")
+  creadorDeCircuitos circuito[]  @relation(name: "CreadorCircuito")
+  creadorDeConsejos  consejo[]   @relation(name: "CreadorConsejo")
+  beneficios         beneficio[] @relation(name: "CreadorBeneficio")
+  familiares         familiar[]  @relation(name: "CreadorFamiliar")
+  voceros            vocero[]    @relation(name: "CreadorVocero") // El usuario solo crea voceros, no los "posee"
+  novedades          novedad[]   @relation(name: "CreadorNovedad")
+
+  MiembrosPaises pais[] @relation(name: "MiembrosPaises")
+  CreadorPaises  pais[] @relation(name: "CreadorPaises")
+
+  MiembrosEstados estado[] @relation(name: "MiembrosEstados")
+  CreadorEstados  estado[] @relation(name: "CreadorEstados")
+
+  MiembrosMunicipios municipio[] @relation(name: "MiembrosMunicipios")
+  CreadorMunicipios  municipio[] @relation(name: "CreadorMunicipios")
+
+  MiembrosParroquias parroquia[] @relation(name: "MiembrosParroquias")
+  CreadorParroquias  parroquia[] @relation(name: "CreadorParroquias")
+
+  nomina         nomina?  @relation(name: "NominaUsuario", fields: [id_nomina], references: [id])
+  nominasCreadas nomina[] @relation(name: "CreadorNomina")
+
+  sueldos        sueldo[] @relation(name: "SueldoUsuario")
+  sueldosCreados sueldo[] @relation(name: "CreadorSueldo")
+
+  asignacion_geograficas asignacion_geografica[] @relation(name: "CreadorAsignacionGeografica")
+  cargos                 cargo[]                 @relation(name: "CreadorCargo")
+  cargoAsignado          cargo[]                 @relation(name: "AsignadoCargo")
+  modulos                modulo[]                @relation(name: "CreadorModulo")
+  formaciones            formacion[]             @relation(name: "CreadorFormacion")
+  formadores             asistencia[]            @relation(name: "FormadorAsistencia")
+  validadores            asistencia[]            @relation(name: "ValidadorAsistencia")
+  verificadores          curso[]                 @relation(name: "VerificadorCurso")
+  certificadores         curso[]                 @relation(name: "CertificadorCurso")
+  cursos                 curso[]                 @relation(name: "CreadorCurso")
+  asistencias            asistencia[]            @relation(name: "CreadorAsistencia")
+  entidades              entidad[]               @relation(name: "CreadorEntidad")
+  proyecto               proyecto[]              @relation(name: "CreadorProyecto")
+
+  @@index([id_rol])
+  @@index([id_usuario])
+}
+
+model imagen {
+  id             Int      @id @default(autoincrement())
+  path           String
+  nombreOriginal String
+  nombreSistema  String
+  tipo           String
+  formato        String
+  peso           Int
+  perfil         Boolean  @default(true)
+  descripcion    String?  @default("sin descripcion")
+  borrado        Boolean  @default(false)
+  id_usuario     Int
+  updatedAt      DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  usuario usuario @relation(fields: [id_usuario], references: [id])
+
+  @@index([id_usuario])
+}
+
+model pais {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  capital     String
+  descripcion String?  @default("sin descripcion")
+  serial      String   @unique
+  borrado     Boolean  @default(false)
+  id_usuario  Int
+  updatedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  creador       usuario       @relation(name: "CreadorPaises", fields: [id_usuario], references: [id])
+  miembros      usuario[]     @relation("MiembrosPaises")
+  estados       estado[]      @relation("PaisEstados")
+  instituciones institucion[]
+}
+
+model estado {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  capital     String
+  cod_postal  String
+  descripcion String?  @default("sin descripcion")
+  serial      String   @unique
+  borrado     Boolean  @default(false)
+  id_usuario  Int
+  id_pais     Int
+  updatedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  creador       usuario       @relation(name: "CreadorEstados", fields: [id_usuario], references: [id])
+  miembros      usuario[]     @relation("MiembrosEstados")
+  pais          pais          @relation("PaisEstados", fields: [id_pais], references: [id])
+  municipios    municipio[]   @relation("EstadoMunicipios")
+  instituciones institucion[]
+
+  @@index([id_pais])
+}
+
+model municipio {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  descripcion String?  @default("sin descripcion")
+  serial      String   @unique
+  borrado     Boolean  @default(false)
+  id_usuario  Int
+  id_estado   Int
+  updatedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  creador  usuario   @relation(name: "CreadorMunicipios", fields: [id_usuario], references: [id])
+  miembros usuario[] @relation("MiembrosMunicipios")
+
+  estados       estado        @relation("EstadoMunicipios", fields: [id_estado], references: [id])
+  parroquias    parroquia[]   @relation("MunicipioParroquias")
+  instituciones institucion[]
+
+  @@index([id_estado])
+}
+
+model parroquia {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  descripcion  String?  @default("sin descripcion")
+  serial       String   @unique
+  borrado      Boolean  @default(false)
+  id_usuario   Int
+  id_municipio Int
+  updatedAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  // Relaciones
+  creador  usuario   @relation(name: "CreadorParroquias", fields: [id_usuario], references: [id])
+  miembros usuario[] @relation("MiembrosParroquias")
+
+  municipios    municipio     @relation("MunicipioParroquias", fields: [id_municipio], references: [id])
+  instituciones institucion[]
+  comunas       comuna[]      @relation("ComunaParroquia")
+  circuitos     circuito[]    @relation("CircuitoParroquia")
+  consejos      consejo[]     @relation("ConsejoParroquia")
+  voceros       vocero[]      @relation("VoceroParroquia")
+
+  @@index([id_municipio])
+}
+
+model institucion {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  descripcion  String?  @default("sin descripcion")
+  alias        String?
+  rif          String   @unique
+  sector       String
+  direccion    String
+  codigo       String?  @unique
+  sub_nombre   String?  @default("")
+  path         String?
+  borrado      Boolean  @default(false)
+  id_usuario   Int
+  id_pais      Int
+  id_estado    Int
+  id_municipio Int
+  id_parroquia Int
+  updatedAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  // Relaciones
+  creador  usuario   @relation(name: "CreadorInstitucion", fields: [id_usuario], references: [id])
+  miembros usuario[] @relation("MiembrosInstitucion")
+
+  pais          pais           @relation(fields: [id_pais], references: [id])
+  estado        estado         @relation(fields: [id_estado], references: [id])
+  municipio     municipio      @relation(fields: [id_municipio], references: [id])
+  parroquia     parroquia      @relation(fields: [id_parroquia], references: [id])
+  departamentos departamento[]
+  estante       estante[]
+  formaciones   formacion[]    @relation(name: "FormacionInstitucion")
+  novedad       novedad[]
+
+  @@index([id_parroquia])
+  @@index([id_municipio])
+}
+
+model departamento {
+  id             Int      @id @default(autoincrement())
+  nombre         String
+  descripcion    String?  @default("sin descripcion")
+  alias          String?
+  codigo         String?  @unique
+  borrado        Boolean  @default(false)
+  path           String?
+  sub_nombre     String?  @default("")
+  id_usuario     Int
+  id_institucion Int
+  updatedAt      DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  // Relaciones
+  creador                 usuario               @relation(name: "CreadorDepartamento", fields: [id_usuario], references: [id])
+  miembros                usuario[]             @relation("MiembrosDepartamento")
+  institucion             institucion           @relation(fields: [id_institucion], references: [id])
+  formaciones             formacion[]           @relation(name: "FormacionDepartamento")
+  novedadDepartamentos    novedadDepartamento[]
+  novedades               novedad[] // Novedades creadas por este departamento (si aplica)
+  notificacionesEnviadas  notificacion[]        @relation("Emisor")
+  notificacionesRecibidas notificacion[]        @relation("Receptor")
+  estantes                estante[]
+  carpetas                carpeta[]
+  archivos                archivo[]
+
+  @@index([id_institucion])
+}
+
+model estante {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  descripcion     String?  @default("sin descripcion")
+  alias           String
+  nivel           Int
+  seccion         Int
+  codigo          String?  @unique
+  path            String?
+  sub_nombre      String?  @default("")
+  borrado         Boolean  @default(false)
+  id_usuario      Int
+  id_institucion  Int
+  id_departamento Int
+  updatedAt       DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  // Relaciones
+  creador      usuario      @relation(name: "CreadorEstante", fields: [id_usuario], references: [id])
+  institucion  institucion  @relation(fields: [id_institucion], references: [id])
+  departamento departamento @relation(fields: [id_departamento], references: [id])
+  carpetas     carpeta[]
+  archivos     archivo[]
+
+  @@index([id_institucion, id_departamento])
+}
+
+model carpeta {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  descripcion     String?  @default("sin descripcion")
+  alias           String
+  codigo          String?  @unique
+  nivel           Int
+  seccion         Int
+  path            String?
+  sub_nombre      String?  @default("")
+  borrado         Boolean  @default(false)
+  id_usuario      Int
+  id_departamento Int
+  id_estante      Int
+  updatedAt       DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  // Relaciones
+  creador      usuario      @relation(name: "CreadorCarpeta", fields: [id_usuario], references: [id])
+  departamento departamento @relation(fields: [id_departamento], references: [id])
+  estante      estante      @relation(fields: [id_estante], references: [id])
+  archivos     archivo[]
+
+  @@index([id_estante])
+  @@index([id_departamento])
+}
+
+model archivo {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  nombre_original String
+  nombre_sistema  String   @unique
+  descripcion     String
+  codigo          String?  @unique
+  hash            String   @unique
+  alias           String
+  extension       String
+  tipo            String
+  size            Int
+  path            String
+  estado          Boolean  @default(true)
+  sub_nombre      String?  @default("")
+  borrado         Boolean  @default(false)
+  id_usuario      Int
+  id_departamento Int
+  id_estante      Int
+  id_carpeta      Int
+  updatedAt       DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  // Relaciones
+  creador      usuario      @relation(name: "CreadorArchivo", fields: [id_usuario], references: [id])
+  departamento departamento @relation(fields: [id_departamento], references: [id])
+  estante      estante      @relation(fields: [id_estante], references: [id])
+  carpeta      carpeta      @relation(fields: [id_carpeta], references: [id])
+
+  @@index([id_carpeta])
+  @@index([id_estante])
+  @@index([id_departamento])
+}
+
+model cargo {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  descripcion String?  @default("sin descripcion")
+  borrado     Boolean  @default(false)
+  institucion Boolean  @default(false)
+  id_usuario  Int
+  updatedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  creador   usuario   @relation(name: "CreadorCargo", fields: [id_usuario], references: [id])
+  asignadoA usuario[] @relation(name: "AsignadoCargo")
+  voceros   vocero[]
+}
+
+model asignacion_geografica {
+  id         Int     @id @default(autoincrement())
+  pais       String? // Ej: "VE"
+  estado     String? // Ej: "ARAGUA"
+  municipio  String? // Ej: "GIRARDOT"
+  parroquia  String? // Ej: "LAS DELICIAS"
+  nivel      String // "pais", "estado", "municipio", "parroquia"
+  borrado    Boolean @default(false)
+  id_usuario Int
+
+  usuarios usuario @relation("CreadorAsignacionGeografica", fields: [id_usuario], references: [id])
+
+  @@index([id_usuario])
+}
+
+model comuna {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  norte        String
+  sur          String
+  este         String
+  oeste        String
+  direccion    String
+  punto        String
+  rif          String?  @unique
+  codigo       String   @unique
+  borrado      Boolean  @default(false)
+  id_usuario   Int
+  id_parroquia Int
+  updatedAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  // Relaciones
+  usuarios  usuario   @relation(name: "CreadorComuna", fields: [id_usuario], references: [id])
+  voceros   vocero[]
+  consejos  consejo[]
+  parroquia parroquia @relation("ComunaParroquia", fields: [id_parroquia], references: [id])
+
+  @@index([id_parroquia])
+}
+
+model circuito {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  norte        String
+  sur          String
+  este         String
+  oeste        String
+  direccion    String
+  punto        String
+  codigo       String   @unique
+  borrado      Boolean  @default(false)
+  id_usuario   Int
+  id_parroquia Int
+  updatedAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  // Relaciones
+  usuarios  usuario   @relation(name: "CreadorCircuito", fields: [id_usuario], references: [id])
+  consejos  consejo[]
+  voceros   vocero[]
+  parroquia parroquia @relation("CircuitoParroquia", fields: [id_parroquia], references: [id])
+
+  @@index([id_parroquia])
+}
+
+model consejo {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  norte        String
+  sur          String
+  este         String
+  oeste        String
+  direccion    String
+  punto        String
+  rif          String?  @unique
+  codigo       String   @unique
+  descripcion  String?  @default("sin descripcion")
+  borrado      Boolean  @default(false)
+  id_usuario   Int
+  id_comuna    Int?
+  id_circuito  Int?
+  id_parroquia Int
+  updatedAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  // Relaciones
+  usuarios  usuario   @relation(name: "CreadorConsejo", fields: [id_usuario], references: [id])
+  comuna    comuna?   @relation(fields: [id_comuna], references: [id])
+  circuito  circuito? @relation(fields: [id_circuito], references: [id])
+  voceros   vocero[]
+  parroquia parroquia @relation("ConsejoParroquia", fields: [id_parroquia], references: [id])
+
+  @@index([id_parroquia])
+  @@index([id_comuna])
+  @@index([id_circuito])
+}
+
+model entidad {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  descripcion String?  @default("sin descripcion")
+  borrado     Boolean  @default(false)
+  id_usuario  Int
+  updatedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  creador usuario  @relation(name: "CreadorEntidad", fields: [id_usuario], references: [id])
+  voceros vocero[]
+}
+
+model proyecto {
+  id           Int      @id @default(autoincrement())
+  nombre       String   @unique
+  descripcion  String?  @default("sin descripcion")
+  fecha_creado DateTime @default(now())
+  borrado      Boolean  @default(false)
+  id_usuario   Int
+  id_vocero    Int
+  estatus      String
+  updatedAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  // Relaciones
+  creador           usuario  @relation(name: "CreadorProyecto", fields: [id_usuario], references: [id])
+  voceroResponsable vocero   @relation(name: "ResponsableProyecto", fields: [id_vocero], references: [id])
+  voceros           vocero[] // Voceros participantes (muchos a muchos)
+
+  @@index([id_vocero])
+}
+
+model beneficio {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  descripcion String?  @default("sin descripcion")
+  borrado     Boolean  @default(false)
+  id_usuario  Int
+  updatedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  creador usuario  @relation(name: "CreadorBeneficio", fields: [id_usuario], references: [id])
+  voceros vocero[]
+}
+
+model familiar {
+  id          Int      @id @default(autoincrement())
+  parentesco  String // Ej: "HIJO", "HIJA", "CONYUGE"
+  empleado    Boolean  @default(false) // False = Es del mundo comunal
+  borrado     Boolean  @default(false)
+  id_usuario  Int?
+  id_vocero   Int? // El vocero titular (el que tiene la familia a su cargo)
+  id_creadorV Int? // El vocero nuevo que acaban de registrar como familiar
+  updatedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  creador       usuario? @relation(name: "CreadorFamiliar", fields: [id_usuario], references: [id])
+  voceroTitular vocero?  @relation(name: "VoceroTitularFamiliar", fields: [id_vocero], references: [id])
+  voceroCreado  vocero?  @relation(name: "VoceroCreadorFamiliar", fields: [id_creadorV], references: [id])
+
+  @@index([id_vocero])
+  @@index([id_creadorV])
+}
+
+model vocero {
+  id             Int      @id @default(autoincrement())
+  nombre         String
+  nombre_dos     String?
+  apellido       String
+  apellido_dos   String?
+  cedula         Int?     @unique
+  folio          String?  @unique
+  genero         Boolean
+  edad           Int
+  telefono       String?  @default("")
+  sector         String?  @default("")
+  direccion      String?  @default("")
+  correo         String?  @default("")
+  token          String   @unique
+  laboral        String?  @default("")
+  f_n            DateTime
+  jefe_comunidad Boolean  @default(false)
+  jefe_calle     Boolean  @default(false)
+  borrado        Boolean  @default(false)
+  id_usuario     Int?
+  id_creadorV    Int? // Vocero que lo registró (auto-referencia)
+  id_comuna      Int?
+  id_consejo     Int?
+  id_circuito    Int?
+  id_parroquia   Int
+  id_entidad     Int?
+  updatedAt      DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  creadorPorUsuario usuario?  @relation(name: "CreadorVocero", fields: [id_usuario], references: [id])
+  creadorPorVocero  vocero?   @relation(name: "CreadorVoceros", fields: [id_creadorV], references: [id])
+  voceros_creados   vocero[]  @relation(name: "CreadorVoceros")
+  parroquia         parroquia @relation("VoceroParroquia", fields: [id_parroquia], references: [id])
+  comuna            comuna?   @relation(fields: [id_comuna], references: [id])
+  consejo           consejo?  @relation(fields: [id_consejo], references: [id])
+  circuito          circuito? @relation(fields: [id_circuito], references: [id])
+
+  beneficios            beneficio[]
+  cursos                curso[]
+  asistencias           asistencia[]
+  cargos                cargo[]
+  familiares            familiar[]   @relation("VoceroTitularFamiliar")
+  familiaresCreados     familiar[]   @relation("VoceroCreadorFamiliar")
+  entidades             entidad[]
+  proyectos             proyecto[]
+  proyectosResponsables proyecto[]   @relation("ResponsableProyecto")
+
+  @@index([id_parroquia])
+  @@index([id_comuna])
+  @@index([id_consejo])
+  @@index([id_circuito])
+  @@index([id_usuario])
+  @@index([id_creadorV])
+}
+
+model formacion {
+  id              Int      @id @default(autoincrement())
+  nombre          String   @unique
+  descripcion     String?  @default("sin descripcion")
+  culminada       Boolean  @default(false)
+  borrado         Boolean  @default(false)
+  id_usuario      Int
+  id_departamento Int?
+  id_institucion  Int?
+  updatedAt       DateTime @default(now()) @updatedAt
+  createdAt       DateTime @default(now())
+
+  creador      usuario       @relation(name: "CreadorFormacion", fields: [id_usuario], references: [id])
+  institucion  institucion?  @relation(name: "FormacionInstitucion", fields: [id_institucion], references: [id])
+  departamento departamento? @relation(name: "FormacionDepartamento", fields: [id_departamento], references: [id])
+  modulos      modulo[]
+  cursos       curso[]
+
+  @@index([id_institucion])
+  @@index([id_departamento])
+}
+
+model modulo {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  descripcion String?  @default("sin descripcion")
+  borrado     Boolean  @default(false)
+  id_usuario  Int
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt   DateTime @default(now())
+
+  creador     usuario      @relation(name: "CreadorModulo", fields: [id_usuario], references: [id])
+  formaciones formacion[]
+  asistencias asistencia[]
+}
+
+model curso {
+  id                Int       @id @default(autoincrement())
+  verificado        Boolean   @default(false)
+  fecha_verificado  DateTime?
+  certificado       Boolean   @default(false)
+  fecha_certificado DateTime?
+  culminado         Boolean   @default(false)
+  descripcion       String?   @default("sin descripcion")
+  borrado           Boolean   @default(false)
+  id_vocero         Int
+  id_formacion      Int
+  id_usuario        Int
+  id_verifico       Int?
+  id_certifico      Int?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+
+  creador      usuario      @relation(name: "CreadorCurso", fields: [id_usuario], references: [id])
+  vocero       vocero       @relation(fields: [id_vocero], references: [id])
+  formacion    formacion    @relation(fields: [id_formacion], references: [id])
+  asistencias  asistencia[]
+  verificador  usuario?     @relation(name: "VerificadorCurso", fields: [id_verifico], references: [id])
+  certificador usuario?     @relation(name: "CertificadorCurso", fields: [id_certifico], references: [id])
+
+  @@index([id_vocero, id_formacion])
+  @@index([id_formacion])
+}
+
+model asistencia {
+  id             Int       @id @default(autoincrement())
+  presente       Boolean
+  fecha_validada DateTime?
+  descripcion    String?   @default("sin descripcion")
+  borrado        Boolean   @default(false)
+  id_formador    Int?
+  id_vocero      Int
+  id_modulo      Int
+  id_curso       Int
+  id_usuario     Int
+  id_validador   Int?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now())
+
+  creador   usuario  @relation(name: "CreadorAsistencia", fields: [id_usuario], references: [id])
+  vocero    vocero   @relation(fields: [id_vocero], references: [id])
+  modulo    modulo   @relation(fields: [id_modulo], references: [id])
+  curso     curso    @relation(fields: [id_curso], references: [id])
+  formador  usuario? @relation(name: "FormadorAsistencia", fields: [id_formador], references: [id])
+  validador usuario? @relation(name: "ValidadorAsistencia", fields: [id_validador], references: [id])
+
+  @@index([id_curso, id_vocero])
+  @@index([id_modulo])
+}
+
+model nomina {
+  id            Int      @id @default(autoincrement())
+  nombre        String   @unique
+  codigo        String   @unique
+  descripcion   String?  @default("sin descripcion")
+  tipo          String?  @default("Ordinaria")
+  frecuencia    String?  @default("Quincenal")
+  partida       String?
+  fuente        String?  @default("Ordinario")
+  activa        Boolean  @default(true)
+  observaciones String?
+  borrado       Boolean  @default(false)
+  id_usuario    Int
+  updatedAt     DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  creador  usuario   @relation(name: "CreadorNomina", fields: [id_usuario], references: [id])
+  usuarios usuario[] @relation(name: "NominaUsuario")
+}
+
+model sueldo {
+  id           Int       @id @default(autoincrement())
+  monto        Decimal // Monto exacto (ej: 201.56, 203.15, 65.0)
+  concepto     String?   @default("Sueldo base quincenal")
+  periodo      String?
+  fecha_inicio DateTime  @default(now())
+  fecha_fin    DateTime?
+  borrado      Boolean   @default(false)
+  id_usuario   Int
+  updatedAt    DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+
+  creador usuario  @relation(name: "CreadorSueldo", fields: [id_usuario], references: [id])
+  usuario usuario? @relation(name: "SueldoUsuario", fields: [id_usuario], references: [id])
+}
+
+model eventos {
+  id           Int      @id @default(autoincrement())
+  tabla        String
+  accion       String
+  ip           String?  @default("")
+  descripcion  String?  @default("")
+  datosAntes   Json?
+  datosDespues Json?
+  borrado      Boolean  @default(false)
+  id_objeto    Int
+  id_usuario   Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([tabla, id_objeto])
+  @@index([id_usuario])
+}
+
+model novedad {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  descripcion     String   @default("sin descripción")
+  fechaCreacion   DateTime @default(now())
+  prioridad       String   @default("baja")
+  borrado         Boolean  @default(false)
+  id_usuario      Int
+  id_institucion  Int?
+  id_departamento Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  creador       usuario               @relation(name: "CreadorNovedad", fields: [id_usuario], references: [id])
+  destinatarios novedadDepartamento[]
+  institucion   institucion?          @relation(fields: [id_institucion], references: [id])
+  departamento  departamento?         @relation(fields: [id_departamento], references: [id])
+
+  @@index([id_institucion])
+  @@index([id_departamento])
+}
+
+model novedadDepartamento {
+  id              Int       @id @default(autoincrement())
+  estatus         String    @default("pendiente")
+  fechaRecepcion  DateTime?
+  borrado         Boolean   @default(false)
+  id_novedad      Int
+  id_departamento Int
+
+  novedad      novedad      @relation(fields: [id_novedad], references: [id])
+  departamento departamento @relation(fields: [id_departamento], references: [id])
+
+  @@index([id_departamento, estatus])
+}
+
+model notificacion {
+  id          Int      @id @default(autoincrement())
+  mensaje     String
+  fechaEnvio  DateTime @default(now())
+  estatus     String   @default("enviada")
+  borrado     Boolean  @default(false)
+  id_emisor   Int?
+  id_receptor Int
+
+  emisor   departamento? @relation("Emisor", fields: [id_emisor], references: [id])
+  receptor departamento  @relation("Receptor", fields: [id_receptor], references: [id])
+
+  @@index([id_receptor])
+}

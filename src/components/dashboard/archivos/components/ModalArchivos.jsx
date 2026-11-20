@@ -1,0 +1,318 @@
+"use client";
+
+import { useSelector, useDispatch } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import dynamic from "next/dynamic";
+
+import BotonesModal from "@/components/botones/BotonesModal";
+import FormCrearArchivo from "@/components/formularios/FormCrearArchivo";
+import FormEditarArchivo from "@/components/formularios/FormEditarArchivo";
+import Modal from "@/components/modales/Modal";
+import ModalDatos from "@/components/modales/ModalDatos";
+import ModalDatosContenedor from "@/components/modales/ModalDatosContenedor";
+import AvisoAdvertencia from "@/components/dashboard/participantes/components/AvisoAdvertencia";
+import ModalPrincipal from "@/components/modales/ModalPrincipal";
+import ModalMostrarArchivo from "@/components/modales/ModalMostrarArchivo";
+const MostrarArchivo = dynamic(
+  () => import("@/components/dashboard/archivos/components/MostrarArchivo"),
+  { ssr: false },
+);
+import MarcaAgua from "@/components/MarcaAgua";
+
+import { crearArchivo } from "@/store/features/archivos/thunks/crearArchivo";
+import { actualizarArchivo } from "@/store/features/archivos/thunks/actualizarArchivo";
+import { abrirModal, cerrarModal } from "@/store/features/modal/slicesModal";
+import { eliminarRestaurarArchivo } from "@/store/features/archivos/thunks/eliminarRestaurarArchivo";
+import { descargarArchivo } from "@/store/features/archivos/thunks/descargarArchivos";
+
+export default function ModalArchivos({
+  acciones,
+  datosArchivo,
+  validaciones,
+}) {
+  const { usuarioActivo } = useSelector((state) => state.auth);
+  const { idArchivo } = useSelector((state) => state.archivos.archivoActual);
+
+  const dispatch = useDispatch();
+
+  const mostrarConfirmar = useSelector(
+    (state) => state.modal.modales.confirmar,
+  );
+  const mostrarConfirmarCambios = useSelector(
+    (state) => state.modal.modales.confirmarCambios,
+  );
+
+  const mostrarEliminarRestaurar = useSelector(
+    (state) => state.modal.modales.confirmarEliminarRestaurar,
+  );
+
+  const mostrarEditar = useSelector((state) => state.modal.modales.editar);
+  const mostrarCrear = useSelector((state) => state.modal.modales.crear);
+  const mostrarFile = useSelector(
+    (state) => state.modal.modales.mostrarArchivo,
+  );
+
+  const {
+    idArch,
+    idCarpeta,
+    archivo,
+    nombre,
+    descripcion,
+    alias,
+    borradoRestaurado,
+    nombreCarpeta,
+  } = datosArchivo;
+
+  const notify = (msj) => toast(msj);
+
+  const handleCrearArchivo = async () => {
+    try {
+      const formData = new FormData();
+
+      formData.append("archivo", archivo);
+      formData.append("nombre", nombre);
+      formData.append("descripcion", descripcion);
+      formData.append("alias", alias);
+      formData.append("idCarpeta", idCarpeta);
+
+      await dispatch(
+        crearArchivo({
+          formData: formData,
+          notify: notify,
+          cerrarModal: cerrarModal,
+        }),
+      ).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleEditarArchivo = async () => {
+    try {
+      const updateArchivo = {
+        archivo: archivo,
+        nombre: nombre,
+        descripcion: descripcion,
+        alias: alias,
+        id_archivo: idArch,
+      };
+
+      await dispatch(
+        actualizarArchivo({
+          updateArchivo: updateArchivo,
+          notify: notify,
+          cerrarModal: cerrarModal,
+        }),
+      ).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleBorrarRestaurarArchivo = async () => {
+    try {
+      const deleteArchivo = {
+        id_archivo: idArch,
+        estado: borradoRestaurado,
+      };
+
+      await dispatch(
+        eliminarRestaurarArchivo({
+          deleteArchivo: deleteArchivo,
+          notify: notify,
+        }),
+      ).unwrap();
+
+      dispatch(cerrarModal("confirmarEliminarRestaurar"));
+    } catch (error) {
+      notify(error);
+      console.log(error);
+    }
+  };
+
+  const handleDescargarArchivo = async () => {
+    try {
+      await dispatch(
+        descargarArchivo({
+          idArchivo: idArchivo,
+          notify: notify,
+          cerrarModal: cerrarModal,
+        }),
+      ).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <>
+      <ToastContainer />
+
+      <Modal
+        isVisible={mostrarConfirmar}
+        onClose={() => {
+          dispatch(cerrarModal("confirmar"));
+        }}
+        titulo={"¿Crear este archivo?"}
+      >
+        <ModalDatosContenedor>
+          <ModalDatos titulo="Carpeta" descripcion={nombreCarpeta} />
+          <ModalDatos titulo="Nombre" descripcion={nombre} />
+          <ModalDatos titulo="Descripción" descripcion={descripcion} />
+          <ModalDatos titulo="Alias" descripcion={alias} />
+        </ModalDatosContenedor>
+
+        <BotonesModal
+          aceptar={handleCrearArchivo}
+          cancelar={() => {
+            dispatch(cerrarModal("confirmar"));
+            dispatch(abrirModal("crear"));
+          }}
+          indiceUno="crear"
+          indiceDos="cancelar"
+          nombreUno="Aceptar"
+          nombreDos="Cancelar"
+          campos={{
+            archivo,
+            nombre,
+            descripcion,
+            alias,
+            idCarpeta,
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isVisible={mostrarEliminarRestaurar}
+        onClose={() => {
+          dispatch(cerrarModal("confirmarEliminarRestaurar"));
+        }}
+        titulo={
+          borradoRestaurado
+            ? "¿Restaurar este archivo?"
+            : "¿Eliminar este archivo?"
+        }
+      >
+        <ModalDatosContenedor>
+          <AvisoAdvertencia
+            mensaje={`Una vez haga click en aceptar, se ${borradoRestaurado ? "restaurará" : "eliminará"}
+                      el archivo.`}
+          />
+        </ModalDatosContenedor>
+
+        <BotonesModal
+          aceptar={handleBorrarRestaurarArchivo}
+          cancelar={() => {
+            dispatch(cerrarModal("confirmarEliminarRestaurar"));
+          }}
+          indiceUno="crear"
+          indiceDos="cancelar"
+          nombreUno="Aceptar"
+          nombreDos="Cancelar"
+          campos={{
+            idArch,
+            borradoRestaurado,
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isVisible={mostrarConfirmarCambios}
+        onClose={() => {
+          dispatch(cerrarModal("confirmarCambios"));
+        }}
+        titulo={"¿Actualizar este archivo?"}
+      >
+        <ModalDatosContenedor>
+          <ModalDatos titulo="Carpeta" descripcion={nombreCarpeta} />
+          <ModalDatos titulo="Nombre" descripcion={nombre} />
+          <ModalDatos titulo="Descripción" descripcion={descripcion} />
+        </ModalDatosContenedor>
+
+        <BotonesModal
+          aceptar={handleEditarArchivo}
+          cancelar={() => {
+            dispatch(cerrarModal("confirmarCambios"));
+            dispatch(abrirModal("editar"));
+          }}
+          indiceUno="crear"
+          indiceDos="cancelar"
+          nombreUno="Guardar cambios"
+          nombreDos="Cancelar"
+          campos={{
+            nombre,
+            descripcion,
+            idCarpeta,
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isVisible={mostrarEditar}
+        onClose={() => {
+          dispatch(cerrarModal("editar"));
+        }}
+        titulo={"¿Actualizar este archivo?"}
+      >
+        <ModalDatosContenedor>
+          <FormEditarArchivo
+            acciones={acciones}
+            datosArchivo={datosArchivo}
+            validaciones={validaciones}
+          />
+        </ModalDatosContenedor>
+      </Modal>
+
+      <ModalPrincipal
+        isVisible={mostrarCrear}
+        onClose={() => {
+          dispatch(cerrarModal("crear"));
+        }}
+        titulo={"¿Crear archivo?"}
+      >
+        <ModalDatosContenedor>
+          <FormCrearArchivo
+            acciones={acciones}
+            datosArchivo={datosArchivo}
+            validaciones={validaciones}
+          />
+        </ModalDatosContenedor>
+      </ModalPrincipal>
+
+      <ModalMostrarArchivo
+        isVisible={mostrarFile}
+        onClose={() => {
+          dispatch(cerrarModal("mostrarArchivo"));
+        }}
+      >
+        <ModalDatosContenedor>
+          <MarcaAgua
+            texto={`${usuarioActivo.cedula}`}
+            opacidad={0.08}
+            tamano={80}
+            color="#000000"
+            rotacion={-20}
+            anchoCanvas={400}
+            altoCanvas={300}
+            escalaRepeticion={0.4}
+          />
+          <MostrarArchivo />
+        </ModalDatosContenedor>
+
+        <BotonesModal
+          aceptar={handleDescargarArchivo}
+          cancelar={() => {
+            dispatch(cerrarModal("mostrarArchivo"));
+          }}
+          indiceUno="crear"
+          indiceDos="cancelar"
+          nombreUno="Descargar"
+          nombreDos="Cerrar"
+          icono1={"descarga"}
+          icono2={"escoba"}
+          campos={{}}
+        />
+      </ModalMostrarArchivo>
+    </>
+  );
+}

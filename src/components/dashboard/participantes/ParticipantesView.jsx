@@ -1,0 +1,213 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
+
+import Div from "@/components/padres/Div";
+import SectionMain from "@/components/SectionMain";
+import SectionTertiary from "@/components/SectionTertiary";
+import FichaDetallesVocero from "@/components/dashboard/participantes/components/FichaDetallesVocero";
+import ButtonToggleDetallesVocero from "@/components/dashboard/participantes/components/ButtonToggleDetallesVocero";
+import ListadoParticipantes from "@/components/dashboard/participantes/components/ListadoParticipantes";
+import ModalParticipantes from "@/components/dashboard/participantes/components/ModalParticipantes";
+import SelectOpcion from "@/components/SelectOpcion";
+import EstadoMsjVacio from "@/components/mensaje/EstadoMsjVacio";
+import Loader from "@/components/Loader";
+import Titulos from "@/components/Titulos";
+import DivOrdenVoceros from "@/components/dashboard/participantes/components/DivOrdenVoceros";
+import opcionOrden from "@/components/dashboard/participantes/function/opcionOrden";
+import EstadisticasParticipantes from "@/components/dashboard/participantes/components/estadisticas/EstadisticasParticipantes";
+
+import { abrirModal } from "@/store/features/modal/slicesModal";
+import { fetchFormacionesInstitucion } from "@/store/features/formaciones/thunks/formacionesInstitucion";
+import { fetchFormaciones } from "@/store/features/formaciones/thunks/todasFormaciones";
+import { fetchParticipantes } from "@/store/features/participantes/thunks/todosParticipantes";
+import { fetchParticipantesIdFormacion } from "@/store/features/participantes/thunks/participantesIdFormacion";
+import { fetchUsuariosNombres } from "@/store/features/usuarios/thunks/todosUsuariosNombres";
+
+import { cambiarSeleccionFormacion } from "@/utils/dashboard/cambiarSeleccionFormacion";
+import {
+  agruparParticipantes,
+  obtenerParticipantesFiltradosOrdenados,
+  opcionesOrden,
+} from "@/utils/filtrarOrdenarVocerosFormaciones";
+import { formatoTituloSimple } from "@/utils/formatearTextCapitalice";
+
+export default function ParticipantesView() {
+  const dispatch = useDispatch();
+
+  const { usuarioActivo } = useSelector((state) => state.auth);
+  const { formaciones } = useSelector((state) => state.formaciones);
+  const { usuarios } = useSelector((state) => state.usuarios);
+  const { participantes, loading } = useSelector(
+    (state) => state.participantes,
+  );
+
+  const [idFormacion, setIdFormacion] = useState("");
+  const [nombreFormacion, setNombreFormacion] = useState("");
+  const [expanded, setExpanded] = useState("");
+
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(25);
+
+  const [busqueda, setBusqueda] = useState("");
+  const [ordenCampo, setOrdenCampo] = useState("nombre");
+  const [ordenDireccion, setOrdenDireccion] = useState("asc");
+
+  const [datosActualizar, setDatosActualizar] = useState([]);
+  const [opcion, setOpcion] = useState("");
+  const [verificarCertificar, setVerificarCertificar] = useState([]);
+
+  useEffect(() => {
+    if (usuarioActivo.id_rol === 1) {
+      dispatch(fetchFormaciones());
+      dispatch(fetchParticipantes());
+    } else {
+      dispatch(fetchFormacionesInstitucion());
+    }
+
+    dispatch(fetchUsuariosNombres());
+  }, [idFormacion, dispatch]);
+
+  useEffect(() => {
+    if (usuarioActivo.id_rol !== 1 && idFormacion) {
+      dispatch(fetchParticipantesIdFormacion(idFormacion));
+    }
+  }, [idFormacion, dispatch]);
+
+  const participantesFiltradosOrdenados = useMemo(() => {
+    return obtenerParticipantesFiltradosOrdenados(
+      participantes,
+      usuarios,
+      busqueda,
+      ordenCampo,
+      ordenDireccion,
+    );
+  }, [participantes, usuarios, busqueda, ordenCampo, ordenDireccion]);
+
+  const participantesPaginados = useMemo(() => {
+    return participantesFiltradosOrdenados.slice(first, first + rows);
+  }, [participantesFiltradosOrdenados, first, rows]);
+
+  const participantesFinales = useMemo(() => {
+    if (ordenCampo) {
+      return agruparParticipantes(participantesPaginados, ordenCampo);
+    }
+
+    return participantesPaginados;
+  }, [participantesPaginados, ordenCampo]);
+
+  useEffect(() => {
+    setFirst(0);
+  }, [busqueda, ordenCampo, ordenDireccion]);
+
+  return (
+    <>
+      <ModalParticipantes
+        datosActualizar={datosActualizar}
+        nombreFormacion={nombreFormacion}
+        opcion={opcion}
+        verificarCertificar={verificarCertificar}
+      />
+      <SectionMain>
+        <SectionTertiary
+          nombre={"Gestión participantes"}
+          first={first}
+          setFirst={setFirst}
+          rows={rows}
+          setRows={setRows}
+          datos={participantesFiltradosOrdenados}
+          busqueda={busqueda}
+          setBusqueda={setBusqueda}
+          ordenCampo={ordenCampo}
+          setOrdenCampo={setOrdenCampo}
+          ordenDireccion={ordenDireccion}
+          setOrdenDireccion={setOrdenDireccion}
+          opcionesOrden={opcionesOrden}
+          funcion={() => {
+            dispatch(abrirModal("confirmar"));
+          }}
+          indice={1}
+        >
+          <SelectOpcion
+            idOpcion={idFormacion}
+            nombre={"Formaciones"}
+            handleChange={(e) => {
+              cambiarSeleccionFormacion(e, setIdFormacion);
+            }}
+            opciones={formaciones}
+            seleccione={"Seleccione"}
+            setNombre={setNombreFormacion}
+          />
+
+          <Div className="flex flex-col gap-2">
+            {participantes?.length === 0 && loading ? (
+              <Loader titulo="Cargando participantes..." />
+            ) : (
+              <>
+                {ordenCampo &&
+                Object.keys(participantesFinales || {}).length > 0 ? (
+                  Object.entries(participantesFinales).map(
+                    ([titulo, lista]) => {
+                      return (
+                        <DivOrdenVoceros
+                          dato={lista}
+                          expanded={expanded}
+                          opcionOrden={opcionOrden(ordenCampo)}
+                          key={titulo}
+                        >
+                          {opcionOrden(ordenCampo) && (
+                            <Titulos
+                              indice={4}
+                              titulo={formatoTituloSimple(titulo)}
+                            />
+                          )}
+
+                          {lista.map((participante, index) => (
+                            <FichaDetallesVocero
+                              key={participante.id}
+                              dato={participante}
+                              index={index}
+                            >
+                              <ButtonToggleDetallesVocero
+                                expanded={expanded}
+                                dato={participante}
+                                setExpanded={setExpanded}
+                              />
+                              {expanded === participante.id && (
+                                <ListadoParticipantes
+                                  participante={participante}
+                                  setDatosActualizar={setDatosActualizar}
+                                  setOpcion={setOpcion}
+                                  setVerificarCertificar={
+                                    setVerificarCertificar
+                                  }
+                                />
+                              )}
+                            </FichaDetallesVocero>
+                          ))}
+                        </DivOrdenVoceros>
+                      );
+                    },
+                  )
+                ) : (
+                  <EstadoMsjVacio
+                    dato={participantesFiltradosOrdenados}
+                    loading={loading}
+                  />
+                )}
+              </>
+            )}
+          </Div>
+
+          {participantes?.length !== 0 && (
+            <EstadisticasParticipantes
+              registrosFiltrados={participantesFiltradosOrdenados}
+              idFormacion={idFormacion}
+            />
+          )}
+        </SectionTertiary>
+      </SectionMain>
+    </>
+  );
+}

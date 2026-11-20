@@ -1,0 +1,261 @@
+"use client";
+
+import { useSelector, useDispatch } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+
+import BotonesModal from "@/components/botones/BotonesModal";
+import FormCrearEstante from "@/components/formularios/FormCrearEstante";
+import FormEditarEstante from "@/components/formularios/FormEditarEstante";
+import Modal from "@/components/modales/Modal";
+import ModalDatos from "@/components/modales/ModalDatos";
+import ModalDatosContenedor from "@/components/modales/ModalDatosContenedor";
+import AvisoAdvertencia from "@/components/dashboard/participantes/components/AvisoAdvertencia";
+import ModalPrincipal from "@/components/modales/ModalPrincipal";
+
+import { crearEstante } from "@/store/features/estantes/thunks/crearEstante";
+import { actualizarEstante } from "@/store/features/estantes/thunks/actualizarEstante";
+import { abrirModal, cerrarModal } from "@/store/features/modal/slicesModal";
+import { eliminarRestaurarEstante } from "@/store/features/estantes/thunks/eliminarRestaurarEstante";
+
+export default function ModalEstantes({
+  acciones,
+  datosEstante,
+  validaciones,
+}) {
+  const dispatch = useDispatch();
+
+  const mostrarConfirmar = useSelector(
+    (state) => state.modal.modales.confirmar,
+  );
+  const mostrarConfirmarCambios = useSelector(
+    (state) => state.modal.modales.confirmarCambios,
+  );
+
+  const mostrarEliminarRestaurar = useSelector(
+    (state) => state.modal.modales.confirmarEliminarRestaurar,
+  );
+
+  const mostrarEditar = useSelector((state) => state.modal.modales.editar);
+  const mostrarCrear = useSelector((state) => state.modal.modales.crear);
+
+  const {
+    idEstante,
+    nombre,
+    descripcion,
+    alias,
+    niveles,
+    secciones,
+    borradoRestaurado,
+  } = datosEstante;
+
+  const notify = (msj) => toast(msj);
+
+  const handleCrearEstante = async () => {
+    try {
+      const nuevoEstante = {
+        nombre: nombre,
+        descripcion: descripcion,
+        alias: alias,
+        niveles: niveles,
+        secciones: secciones,
+      };
+
+      await dispatch(
+        crearEstante({
+          nuevoEstante: nuevoEstante,
+          notify: notify,
+          cerrarModal: cerrarModal,
+        }),
+      ).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleEditarEstante = async () => {
+    try {
+      const updateEstante = {
+        nombre: nombre,
+        descripcion: descripcion,
+        niveles: niveles,
+        secciones: secciones,
+        id_estante: idEstante,
+      };
+
+      await dispatch(
+        actualizarEstante({
+          updateEstante: updateEstante,
+          notify: notify,
+          cerrarModal: cerrarModal,
+        }),
+      ).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleBorrarRestaurarEstante = async () => {
+    try {
+      const deleteEstante = {
+        id_estante: idEstante,
+        estado: borradoRestaurado,
+      };
+
+      await dispatch(
+        eliminarRestaurarEstante({
+          deleteEstante: deleteEstante,
+          notify: notify,
+        }),
+      ).unwrap();
+
+      dispatch(cerrarModal("confirmarEliminarRestaurar"));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <>
+      <ToastContainer />
+
+      <Modal
+        isVisible={mostrarConfirmar}
+        onClose={() => {
+          dispatch(cerrarModal("confirmar"));
+        }}
+        titulo={"¿Crear este estante?"}
+      >
+        <ModalDatosContenedor>
+          <ModalDatos titulo="Nombre" descripcion={nombre} />
+          <ModalDatos titulo="Descripción" descripcion={descripcion} />
+          <ModalDatos titulo="Alias" descripcion={alias} />
+          <ModalDatos
+            titulo={niveles != "00" ? "Niveles" : "Cabecera"}
+            descripcion={niveles == "00" ? `Nivel 0` : Number(niveles)}
+          />
+          <ModalDatos titulo="Secciones" descripcion={secciones} />
+        </ModalDatosContenedor>
+
+        <BotonesModal
+          aceptar={handleCrearEstante}
+          cancelar={() => {
+            dispatch(cerrarModal("confirmar"));
+            dispatch(abrirModal("crear"));
+          }}
+          indiceUno="crear"
+          indiceDos="cancelar"
+          nombreUno="Aceptar"
+          nombreDos="Cancelar"
+          campos={{
+            nombre,
+            descripcion,
+            alias,
+            niveles,
+            secciones,
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isVisible={mostrarEliminarRestaurar}
+        onClose={() => {
+          dispatch(cerrarModal("confirmarEliminarRestaurar"));
+        }}
+        titulo={
+          borradoRestaurado
+            ? "¿Restaurar este estante?"
+            : "¿Eliminar este estante?"
+        }
+      >
+        <ModalDatosContenedor>
+          <AvisoAdvertencia
+            mensaje={`Una vez haga click en aceptar, se ${borradoRestaurado ? "restaurará" : "eliminará"} el
+                  estante y toda su información relacionada. Incluyendo
+                  carpetas y archivos`}
+          />
+        </ModalDatosContenedor>
+
+        <BotonesModal
+          aceptar={handleBorrarRestaurarEstante}
+          cancelar={() => {
+            dispatch(cerrarModal("confirmarEliminarRestaurar"));
+          }}
+          indiceUno="crear"
+          indiceDos="cancelar"
+          nombreUno="Aceptar"
+          nombreDos="Cancelar"
+          campos={{
+            idEstante,
+            borradoRestaurado,
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isVisible={mostrarConfirmarCambios}
+        onClose={() => {
+          dispatch(cerrarModal("confirmarCambios"));
+        }}
+        titulo={"¿Actualizar este estante?"}
+      >
+        <ModalDatosContenedor>
+          <ModalDatos titulo="Nombre" descripcion={nombre} />
+          <ModalDatos titulo="Descripción" descripcion={descripcion} />
+          <ModalDatos titulo="Niveles" descripcion={Number(niveles)} />
+          <ModalDatos titulo="Secciones" descripcion={secciones} />
+        </ModalDatosContenedor>
+
+        <BotonesModal
+          aceptar={handleEditarEstante}
+          cancelar={() => {
+            dispatch(cerrarModal("confirmarCambios"));
+            dispatch(abrirModal("editar"));
+          }}
+          indiceUno="crear"
+          indiceDos="cancelar"
+          nombreUno="Guardar cambios"
+          nombreDos="Cancelar"
+          campos={{
+            nombre,
+            descripcion,
+            niveles,
+            secciones,
+            idEstante,
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isVisible={mostrarEditar}
+        onClose={() => {
+          dispatch(cerrarModal("editar"));
+        }}
+        titulo={"¿Actualizar este estante?"}
+      >
+        <ModalDatosContenedor>
+          <FormEditarEstante
+            acciones={acciones}
+            datosEstante={datosEstante}
+            validaciones={validaciones}
+          />
+        </ModalDatosContenedor>
+      </Modal>
+
+      <ModalPrincipal
+        isVisible={mostrarCrear}
+        onClose={() => {
+          dispatch(cerrarModal("crear"));
+        }}
+        titulo={"¿Crear estante?"}
+      >
+        <ModalDatosContenedor>
+          <FormCrearEstante
+            acciones={acciones}
+            datosEstante={datosEstante}
+            validaciones={validaciones}
+          />
+        </ModalDatosContenedor>
+      </ModalPrincipal>
+    </>
+  );
+}
