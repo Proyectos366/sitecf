@@ -6,8 +6,10 @@ import SectionTertiary from "@/components/SectionTertiary";
 import LeyendaUsuarios from "@/components/dashboard/usuarios/components/LeyendaUsuarios";
 import ModalUsuarios from "@/components/dashboard/usuarios/components/ModalUsuarios";
 import SectionQuaternary from "@/components/SectionQuaternary";
-import ListaSeccion from "./components/ListaSeccionUsuario";
+import ListaSeccion from "@/components/dashboard/usuarios/components/ListaSeccionUsuario";
+
 import { abrirModal } from "@/store/features/modal/slicesModal";
+
 import { useUsuariosLogic } from "@/hooks/usuarios/useUsuariosLogic";
 
 export default function UsuariosView() {

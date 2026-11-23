@@ -18,56 +18,88 @@ import MostrarMsj from "@/components/MostrarMensaje";
 import BotonAceptarCancelar from "@/components/botones/BotonAceptarCancelar";
 import BotonLimpiarCampos from "@/components/botones/BotonLimpiarCampos";
 
+import { cambiarSeleccionDepartamento } from "@/utils/dashboard/cambiarSeleccionDepartamento";
+
 import { cambiarSeleccionRol } from "@/components/dashboard/usuarios/funciones/cambiarSeleccionRol";
 import { cambiarSeleccionInstitucion } from "@/components/dashboard/usuarios/funciones/cambiarSeleccionInstitucion";
-import { cambiarSeleccionDepartamento } from "@/utils/dashboard/cambiarSeleccionDepartamento";
 import { toggleAutorizar } from "@/components/dashboard/usuarios/funciones/toggleAutorizar";
 
 import { abrirModal, cerrarModal } from "@/store/features/modal/slicesModal";
 import { resetForm } from "@/store/features/formularios/formSlices";
+import { cambiarSeleccionGenero } from "@/utils/dashboard/cambiarSeleccionGenero";
 
 export default function FormCrearUsuario({
-  idDepartamento,
-  setIdDepartamento,
-  idInstitucion,
-  setIdInstitucion,
-  idRol,
-  setIdRol,
-  cedula,
-  setCedula,
-  correo,
-  setCorreo,
-  nombre,
-  setNombre,
-  apellido,
-  setApellido,
-  claveUno,
-  setClaveUno,
-  claveDos,
-  setClaveDos,
-  validarCedula,
-  setValidarCedula,
-  validarCorreo,
-  setValidarCorreo,
-  validarNombre,
-  setValidarNombre,
-  validarApellido,
-  setValidarApellido,
-  validarClave,
-  setValidarClave,
-  mensaje,
-  setMensaje,
-  departamentos,
-  instituciones,
-  roles,
-  setNombreDepartamento,
-  setNombreInstitucion,
-  setNombreRol,
-  autorizar,
-  setAutorizar,
-  usuarioActivo,
+  acciones,
+  datosUsuario,
+  validaciones,
 }) {
+  const {
+    accion,
+    setNombreRol,
+    setNombreDepartamento,
+    setIdInstitucion,
+    setIdDepartamento,
+    setIdRol,
+    setNombreInstitucion,
+    setCedula,
+    setNombre,
+    setNombreDos,
+    setApellido,
+    setApellidoDos,
+    setCorreo,
+    setGenero,
+    setClaveUno,
+    setClaveDos,
+    setMensaje,
+    setAutorizar,
+    setAccion,
+  } = acciones;
+
+  const {
+    cedula,
+    nombre,
+    nombreDos,
+    apellido,
+    apellidoDos,
+    genero,
+    correo,
+    nombreInstitucion,
+    nombreDepartamento,
+    claveUno,
+    claveDos,
+    mensaje,
+    nombreRol,
+    idRol,
+    idUsuario,
+    idDepartamento,
+    idInstitucion,
+    autorizar,
+  } = datosUsuario;
+
+  const {
+    validarCedula,
+    setValidarCedula,
+    validarNombre,
+    setValidarNombre,
+    validarNombreDos,
+    setValidarNombreDos,
+    validarApellido,
+    setValidarApellido,
+    validarApellidoDos,
+    setValidarApellidoDos,
+    validarCorreo,
+    setValidarCorreo,
+    validarClave,
+    setValidarClave,
+  } = validaciones;
+
   const dispatch = useDispatch();
+
+  const { usuarioActivo } = useSelector((state) => state.auth);
+  const { roles } = useSelector((state) => state.roles);
+  const { instituciones } = useSelector((state) => state.instituciones);
+  const { departamentos } = useSelector((state) => state.departamentos);
+
   const mostrarCrear = useSelector((state) => state.modal.modales.crear);
   const reiniciarForm = useSelector(
     (state) => state.forms.reiniciarForm.usuarioForm,
@@ -135,13 +167,104 @@ export default function FormCrearUsuario({
   return (
     <Formulario onSubmit={(e) => e.preventDefault()}>
       <DivScroll>
-        <InputCedula
-          value={cedula}
-          setValue={setCedula}
-          validarCedula={validarCedula}
-          setValidarCedula={setValidarCedula}
-        />
+        <AgruparCamposForm>
+          <InputCedula
+            value={cedula}
+            setValue={setCedula}
+            validarCedula={validarCedula}
+            setValidarCedula={setValidarCedula}
+          />
 
+          <SelectOpcion
+            idOpcion={genero}
+            nombre={"Genero"}
+            handleChange={(e) => {
+              cambiarSeleccionGenero(e, setGenero);
+            }}
+            opciones={[
+              { id: "1", nombre: "Masculino" },
+              { id: "2", nombre: "Femenino" },
+            ]}
+            seleccione={"Seleccione"}
+          />
+        </AgruparCamposForm>
+
+        <AgruparCamposForm>
+          <InputNombre
+            value={nombre}
+            setValue={setNombre}
+            validarNombre={validarNombre}
+            setValidarNombre={setValidarNombre}
+          />
+
+          <InputNombre
+            indice="nombre"
+            nombre={"Segundo nombre"}
+            value={nombreDos}
+            setValue={setNombreDos}
+            validarNombre={validarNombreDos}
+            setValidarNombre={setValidarNombreDos}
+            placeholder={"Estefania"}
+          />
+        </AgruparCamposForm>
+
+        <AgruparCamposForm>
+          <InputNombre
+            nombre={"Apellido"}
+            htmlFor={"apellido"}
+            value={apellido}
+            setValue={setApellido}
+            validarNombre={validarApellido}
+            setValidarNombre={setValidarApellido}
+            placeholder={"morgado"}
+          />
+
+          <InputNombre
+            indice="nombre"
+            nombre={"Segundo apellido"}
+            value={apellidoDos}
+            setValue={setApellidoDos}
+            validarNombre={validarApellidoDos}
+            setValidarNombre={setValidarApellidoDos}
+            placeholder={"peraza"}
+          />
+        </AgruparCamposForm>
+
+        <AgruparCamposForm>
+          <SelectOpcion
+            idOpcion={idRol}
+            nombre={"Roles"}
+            handleChange={(e) => cambiarSeleccionRol(e, setIdRol)}
+            opciones={roles}
+            seleccione={"Seleccione"}
+            setNombre={setNombreRol}
+          />
+
+          {usuarioActivo.id_rol === 1 && (
+            <SelectOpcion
+              idOpcion={idInstitucion}
+              nombre={"Instituciones"}
+              handleChange={(e) =>
+                cambiarSeleccionInstitucion(e, setIdInstitucion)
+              }
+              opciones={instituciones}
+              seleccione={"Seleccione"}
+              setNombre={setNombreInstitucion}
+            />
+          )}
+
+          <SelectOpcion
+            idOpcion={idDepartamento}
+            nombre={"Departamentos"}
+            handleChange={(e) =>
+              cambiarSeleccionDepartamento(e, setIdDepartamento)
+            }
+            opciones={departamentos}
+            seleccione={"Seleccione"}
+            setNombre={setNombreDepartamento}
+          />
+        </AgruparCamposForm>
+        
         <InputCorreo
           value={correo}
           setValue={setCorreo}
@@ -149,70 +272,22 @@ export default function FormCrearUsuario({
           setValidarCorreo={setValidarCorreo}
         />
 
-        <InputNombre
-          value={nombre}
-          setValue={setNombre}
-          validarNombre={validarNombre}
-          setValidarNombre={setValidarNombre}
-        />
-
-        <InputNombre
-          nombre={"Apellido"}
-          htmlFor={"apellido"}
-          value={apellido}
-          setValue={setApellido}
-          validarNombre={validarApellido}
-          setValidarNombre={setValidarApellido}
-          placeholder={"morgado"}
-        />
-
-        <SelectOpcion
-          idOpcion={idRol}
-          nombre={"Roles"}
-          handleChange={(e) => cambiarSeleccionRol(e, setIdRol)}
-          opciones={roles}
-          seleccione={"Seleccione"}
-          setNombre={setNombreRol}
-        />
-
-        {usuarioActivo.id_rol === 1 && (
-          <SelectOpcion
-            idOpcion={idInstitucion}
-            nombre={"Instituciones"}
-            handleChange={(e) =>
-              cambiarSeleccionInstitucion(e, setIdInstitucion)
-            }
-            opciones={instituciones}
-            seleccione={"Seleccione"}
-            setNombre={setNombreInstitucion}
+        <AgruparCamposForm>
+          <InputClave
+            value={claveUno}
+            onChange={leyendoClave1}
+            indice={"clave"}
+            validarClave={validarClave}
+            setValidarClave={setValidarClave}
           />
-        )}
 
-        <SelectOpcion
-          idOpcion={idDepartamento}
-          nombre={"Departamentos"}
-          handleChange={(e) =>
-            cambiarSeleccionDepartamento(e, setIdDepartamento)
-          }
-          opciones={departamentos}
-          seleccione={"Seleccione"}
-          setNombre={setNombreDepartamento}
-        />
-
-        <InputClave
-          value={claveUno}
-          onChange={leyendoClave1}
-          indice={"clave"}
-          validarClave={validarClave}
-          setValidarClave={setValidarClave}
-        />
-
-        <InputClave
-          nombre={"Clave confirmar"}
-          value={claveDos}
-          onChange={leyendoClave2}
-          indice={"clave2"}
-        />
+          <InputClave
+            nombre={"Clave confirmar"}
+            value={claveDos}
+            onChange={leyendoClave2}
+            indice={"clave2"}
+          />
+        </AgruparCamposForm>
 
         <Div className="flex flex-col w-full">
           <Span className="text-[#364153] font-medium">Autorizar</Span>
@@ -288,3 +363,46 @@ export default function FormCrearUsuario({
     </Formulario>
   );
 }
+
+/**
+ {
+  idDepartamento,
+  setIdDepartamento,
+  idInstitucion,
+  setIdInstitucion,
+  idRol,
+  setIdRol,
+  cedula,
+  setCedula,
+  correo,
+  setCorreo,
+  nombre,
+  setNombre,
+  apellido,
+  setApellido,
+  claveUno,
+  setClaveUno,
+  claveDos,
+  setClaveDos,
+  validarCedula,
+  setValidarCedula,
+  validarCorreo,
+  setValidarCorreo,
+  validarNombre,
+  setValidarNombre,
+  validarApellido,
+  setValidarApellido,
+  validarClave,
+  setValidarClave,
+  mensaje,
+  setMensaje,
+  departamentos,
+  instituciones,
+  roles,
+  setNombreDepartamento,
+  setNombreInstitucion,
+  setNombreRol,
+  autorizar,
+  setAutorizar,
+}
+ */

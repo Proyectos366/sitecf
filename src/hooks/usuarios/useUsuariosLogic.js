@@ -13,7 +13,10 @@ export function useUsuariosLogic() {
 
   const [cedulaUsuario, setCedulaUsuario] = useState("");
   const [nombreUsuario, setNombreUsuario] = useState("");
+  const [nombreUsuarioDos, setNombreUsuarioDos] = useState("");
   const [apellidoUsuario, setApellidoUsuario] = useState("");
+  const [apellidoUsuarioDos, setApellidoUsuarioDos] = useState("");
+  const [generoVocero, setGeneroVocero] = useState("");
   const [correoUsuario, setCorreoUsuario] = useState("");
   const [claveUnoUsuario, setClaveUnoUsuario] = useState("");
   const [claveDosUsuario, setClaveDosUsuario] = useState("");
@@ -38,7 +41,10 @@ export function useUsuariosLogic() {
   const [validarCedulaUsuario, setValidarCedulaUsuario] = useState(false);
   const [validarCorreoUsuario, setValidarCorreoUsuario] = useState(false);
   const [validarNombreUsuario, setValidarNombreUsuario] = useState(false);
+  const [validarNombreUsuarioDos, setValidarNombreUsuarioDos] = useState(false);
   const [validarApellidoUsuario, setValidarApellidoUsuario] = useState(false);
+  const [validarApellidoUsuarioDos, setValidarApellidoUsuarioDos] =
+    useState(false);
   const [validarClaveUsuario, setValidarClaveUsuario] = useState(false);
 
   const [autorizar, setAutorizar] = useState("");
@@ -114,7 +120,10 @@ export function useUsuariosLogic() {
     setNombreInstitucion,
     setCedula: setCedulaUsuario,
     setNombre: setNombreUsuario,
+    setNombreDos: setNombreUsuarioDos,
     setApellido: setApellidoUsuario,
+    setApellidoDos: setApellidoUsuarioDos,
+    setGenero: setGeneroVocero,
     setCorreo: setCorreoUsuario,
     setClaveUno: setClaveUnoUsuario,
     setClaveDos: setClaveDosUsuario,
@@ -126,7 +135,10 @@ export function useUsuariosLogic() {
   const datosUsuario = {
     cedula: cedulaUsuario,
     nombre: nombreUsuario,
+    nombreDos: nombreUsuarioDos,
     apellido: apellidoUsuario,
+    apellidoDos: apellidoUsuarioDos,
+    genero: generoVocero,
     correo: correoUsuario,
     nombreInstitucion: nombreInstitucion,
     nombreDepartamento: nombreDepartamento,
@@ -146,8 +158,12 @@ export function useUsuariosLogic() {
     setValidarCedula: setValidarCedulaUsuario,
     validarNombre: validarNombreUsuario,
     setValidarNombre: setValidarNombreUsuario,
+    validarNombreDos: validarNombreUsuarioDos,
+    setValidarNombreDos: setValidarNombreUsuarioDos,
     validarApellido: validarApellidoUsuario,
     setValidarApellido: setValidarApellidoUsuario,
+    validarApellidoDos: validarApellidoUsuarioDos,
+    setValidarApellidoDos: setValidarApellidoUsuarioDos,
     validarCorreo: validarCorreoUsuario,
     setValidarCorreo: setValidarCorreoUsuario,
     validarClave: validarClaveUsuario,

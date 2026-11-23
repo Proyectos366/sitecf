@@ -42,7 +42,6 @@ export default function ModalUsuarios({
   const { usuarioActivo } = useSelector((state) => state.auth);
   const { roles } = useSelector((state) => state.roles);
   const { departamentos } = useSelector((state) => state.departamentos);
-  const { instituciones } = useSelector((state) => state.instituciones);
 
   useEffect(() => {
     dispatch(fetchRoles());
@@ -301,6 +300,18 @@ export default function ModalUsuarios({
       >
         <ModalDatosContenedor>
           <FormCrearUsuario
+            acciones={acciones}
+            datosUsuario={datosUsuario}
+            validaciones={validaciones}
+          />
+        </ModalDatosContenedor>
+      </ModalPrincipal>
+    </>
+  );
+}
+
+/**
+ <FormCrearUsuario
             idInstitucion={idInstitucion}
             idDepartamento={idDepartamento}
             idRol={idRol}
@@ -339,10 +350,5 @@ export default function ModalUsuarios({
             roles={roles}
             autorizar={autorizar}
             setAutorizar={setAutorizar}
-            usuarioActivo={usuarioActivo}
           />
-        </ModalDatosContenedor>
-      </ModalPrincipal>
-    </>
-  );
-}
+ */
