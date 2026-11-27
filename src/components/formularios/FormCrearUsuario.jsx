@@ -27,6 +27,9 @@ import { toggleAutorizar } from "@/components/dashboard/usuarios/funciones/toggl
 import { abrirModal, cerrarModal } from "@/store/features/modal/slicesModal";
 import { resetForm } from "@/store/features/formularios/formSlices";
 import { cambiarSeleccionGenero } from "@/utils/dashboard/cambiarSeleccionGenero";
+import InputTelefono from "../inputs/InputTelefono";
+import InputFecha from "../inputs/InputFecha";
+import InputDescripcion from "../inputs/InputDescripcion";
 
 export default function FormCrearUsuario({
   acciones,
@@ -46,8 +49,15 @@ export default function FormCrearUsuario({
     setNombreDos,
     setApellido,
     setApellidoDos,
-    setCorreo,
+    setSector,
+    setDireccion,
+    setTelefono,
     setGenero,
+    setFechaN,
+    setFechaI,
+    setProfesion,
+    setResolucion,
+    setCorreo,
     setClaveUno,
     setClaveDos,
     setMensaje,
@@ -61,7 +71,14 @@ export default function FormCrearUsuario({
     nombreDos,
     apellido,
     apellidoDos,
+    sector,
+    direccion,
+    telefono,
     genero,
+    fechaN,
+    fechaI,
+    profesion,
+    resolucion,
     correo,
     nombreInstitucion,
     nombreDepartamento,
@@ -87,8 +104,20 @@ export default function FormCrearUsuario({
     setValidarApellido,
     validarApellidoDos,
     setValidarApellidoDos,
+    validarSector,
+    setValidarSector,
+    validarProfesion,
+    setValidarProfesion,
+    validarResolucion,
+    setValidarResolucion,
+    validarFechaN,
+    setValidarFechaN,
+    validarFechaI,
+    setValidarFechaI,
     validarCorreo,
     setValidarCorreo,
+    validarTelefono,
+    setValidarTelefono,
     validarClave,
     setValidarClave,
   } = validaciones;
@@ -175,17 +204,12 @@ export default function FormCrearUsuario({
             setValidarCedula={setValidarCedula}
           />
 
-          <SelectOpcion
-            idOpcion={genero}
-            nombre={"Genero"}
-            handleChange={(e) => {
-              cambiarSeleccionGenero(e, setGenero);
-            }}
-            opciones={[
-              { id: "1", nombre: "Masculino" },
-              { id: "2", nombre: "Femenino" },
-            ]}
-            seleccione={"Seleccione"}
+          <InputFecha
+            nombre={"Fecha de nacimiento"}
+            value={fechaN}
+            setValue={setFechaN}
+            validarFecha={validarFechaN}
+            setValidarFecha={setValidarFechaN}
           />
         </AgruparCamposForm>
 
@@ -264,13 +288,90 @@ export default function FormCrearUsuario({
             setNombre={setNombreDepartamento}
           />
         </AgruparCamposForm>
-        
-        <InputCorreo
-          value={correo}
-          setValue={setCorreo}
-          validarCorreo={validarCorreo}
-          setValidarCorreo={setValidarCorreo}
-        />
+
+        <AgruparCamposForm>
+          <SelectOpcion
+            idOpcion={genero}
+            nombre={"Genero"}
+            handleChange={(e) => {
+              cambiarSeleccionGenero(e, setGenero);
+            }}
+            opciones={[
+              { id: "1", nombre: "Masculino" },
+              { id: "2", nombre: "Femenino" },
+            ]}
+            seleccione={"Seleccione"}
+          />
+
+          <InputFecha
+            nombre={"Fecha de ingreso"}
+            value={fechaI}
+            setValue={setFechaI}
+            validarFecha={validarFechaI}
+            setValidarFecha={setValidarFechaI}
+          />
+        </AgruparCamposForm>
+
+        <AgruparCamposForm>
+          <InputNombre
+            indice="nombre"
+            nombre={"Sector"}
+            value={sector}
+            setValue={setSector}
+            validarNombre={validarSector}
+            setValidarNombre={setValidarSector}
+            placeholder={"Ejemplo: la coromoto, la caridad, etc..."}
+          />
+          <InputNombre
+            indice="nombre"
+            nombre={"Resolución"}
+            value={resolucion}
+            setValue={setResolucion}
+            validarNombre={validarResolucion}
+            setValidarNombre={setValidarResolucion}
+            placeholder={"Ejemplo: 000-000"}
+          />
+        </AgruparCamposForm>
+
+        <AgruparCamposForm>
+          <InputTelefono
+            value={telefono}
+            setValue={setTelefono}
+            validarTelefono={validarTelefono}
+            setValidarTelefono={setValidarTelefono}
+          />
+
+          <InputNombre
+            indice="nombre"
+            nombre={"Profesión"}
+            value={profesion}
+            setValue={setProfesion}
+            validarNombre={validarProfesion}
+            setValidarNombre={setValidarProfesion}
+            placeholder={"Ejemplo: contador, abogado, etc..."}
+          />
+        </AgruparCamposForm>
+
+        <AgruparCamposForm>
+          <InputDescripcion
+            nombre={"Dirección"}
+            value={direccion}
+            setValue={setDireccion}
+            rows={6}
+            max={500}
+            autoComplete="off"
+            placeholder={"Ingresa tu dirección con todos los detalles..."}
+          />
+        </AgruparCamposForm>
+
+        <AgruparCamposForm>
+          <InputCorreo
+            value={correo}
+            setValue={setCorreo}
+            validarCorreo={validarCorreo}
+            setValidarCorreo={setValidarCorreo}
+          />
+        </AgruparCamposForm>
 
         <AgruparCamposForm>
           <InputClave

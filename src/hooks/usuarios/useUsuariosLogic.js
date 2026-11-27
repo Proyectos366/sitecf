@@ -16,7 +16,14 @@ export function useUsuariosLogic() {
   const [nombreUsuarioDos, setNombreUsuarioDos] = useState("");
   const [apellidoUsuario, setApellidoUsuario] = useState("");
   const [apellidoUsuarioDos, setApellidoUsuarioDos] = useState("");
-  const [generoVocero, setGeneroVocero] = useState("");
+  const [sectorUsuario, setSectorUsuario] = useState("");
+  const [direccionUsuario, setDireccionUsuario] = useState("");
+  const [telefonoUsuario, setTelefonoUsuario] = useState("");
+  const [generoUsuario, setGeneroUsuario] = useState("");
+  const [fechaNacimientoUsuario, setFechaNacimientoUsuario] = useState("");
+  const [fechaIngresoUsuario, setFechaIngresoUsuario] = useState("");
+  const [profesionUsuario, setProfesionUsuario] = useState("");
+  const [resolucionUsuario, setResolucionUsuario] = useState("");
   const [correoUsuario, setCorreoUsuario] = useState("");
   const [claveUnoUsuario, setClaveUnoUsuario] = useState("");
   const [claveDosUsuario, setClaveDosUsuario] = useState("");
@@ -41,9 +48,17 @@ export function useUsuariosLogic() {
   const [validarCedulaUsuario, setValidarCedulaUsuario] = useState(false);
   const [validarCorreoUsuario, setValidarCorreoUsuario] = useState(false);
   const [validarNombreUsuario, setValidarNombreUsuario] = useState(false);
+  const [validarSectorUsuario, setValidarSectorUsuario] = useState(false);
+  const [validarProfesionUsuario, setValidarProfesionUsuario] = useState(false);
+  const [validarResolucionUsuario, setValidarResolucionUsuario] =
+    useState(false);
   const [validarNombreUsuarioDos, setValidarNombreUsuarioDos] = useState(false);
   const [validarApellidoUsuario, setValidarApellidoUsuario] = useState(false);
   const [validarApellidoUsuarioDos, setValidarApellidoUsuarioDos] =
+    useState(false);
+  const [validarFechaNacimientoUsuario, setValidarFechaNacimientoUsuario] =
+    useState(false);
+  const [validarFechaIngresoUsuario, setValidarFechaIngresoUsuario] =
     useState(false);
   const [validarClaveUsuario, setValidarClaveUsuario] = useState(false);
 
@@ -123,7 +138,14 @@ export function useUsuariosLogic() {
     setNombreDos: setNombreUsuarioDos,
     setApellido: setApellidoUsuario,
     setApellidoDos: setApellidoUsuarioDos,
-    setGenero: setGeneroVocero,
+    setSector: setSectorUsuario,
+    setDireccion: setDireccionUsuario,
+    setTelefono: setTelefonoUsuario,
+    setGenero: setGeneroUsuario,
+    setFechaN: setFechaNacimientoUsuario,
+    setFechaI: setFechaIngresoUsuario,
+    setProfesion: setProfesionUsuario,
+    setResolucion: setResolucionUsuario,
     setCorreo: setCorreoUsuario,
     setClaveUno: setClaveUnoUsuario,
     setClaveDos: setClaveDosUsuario,
@@ -138,7 +160,14 @@ export function useUsuariosLogic() {
     nombreDos: nombreUsuarioDos,
     apellido: apellidoUsuario,
     apellidoDos: apellidoUsuarioDos,
-    genero: generoVocero,
+    sector: sectorUsuario,
+    direccion: direccionUsuario,
+    telefono: telefonoUsuario,
+    genero: generoUsuario,
+    fechaN: fechaNacimientoUsuario,
+    fechaI: fechaIngresoUsuario,
+    profesion: profesionUsuario,
+    resolucion: resolucionUsuario,
     correo: correoUsuario,
     nombreInstitucion: nombreInstitucion,
     nombreDepartamento: nombreDepartamento,
@@ -166,6 +195,16 @@ export function useUsuariosLogic() {
     setValidarApellidoDos: setValidarApellidoUsuarioDos,
     validarCorreo: validarCorreoUsuario,
     setValidarCorreo: setValidarCorreoUsuario,
+    validarSector: validarSectorUsuario,
+    setValidarSector: setValidarSectorUsuario,
+    validarProfesion: validarProfesionUsuario,
+    setValidarProfesion: setValidarProfesionUsuario,
+    validarResolucion: validarResolucionUsuario,
+    setValidarResolucion: setValidarResolucionUsuario,
+    validarFechaN: validarFechaNacimientoUsuario,
+    setValidarFechaN: setValidarFechaNacimientoUsuario,
+    validarFechaI: validarFechaIngresoUsuario,
+    setValidarFechaI: setValidarFechaIngresoUsuario,
     validarClave: validarClaveUsuario,
     setValidarClave: setValidarClaveUsuario,
   };

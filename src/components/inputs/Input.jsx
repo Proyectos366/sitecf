@@ -17,7 +17,7 @@ export default function Input({
   title,
   onClick,
 }) {
-  const clasePorDefecto = `${
+  const clasePorDefecto = `text-xs sm:text-[15px] ${
     indice === "clave" || indice === "clave2" ? "" : "uppercase"
   } block w-full p-2 outline ${
     readOnly

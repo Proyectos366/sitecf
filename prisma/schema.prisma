@@ -33,7 +33,6 @@ model usuario {
   genero       Boolean   @default(true)
   f_n          DateTime
   f_ingreso    DateTime  @default(now())
-  f_egreso     DateTime?
   profesion    String?   @default("")
   resolucion   String    @unique
   correo       String    @unique

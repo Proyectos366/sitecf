@@ -42,7 +42,7 @@ export default function InputFecha({
     }
   };
 
-  const clasePorDefecto = `text-[#99a1af] text-xs py-3 cursor-pointer`;
+  const clasePorDefecto = `text-[#99a1af] text-xs sm:text-[15px] py-2 cursor-pointer`;
   const nuevaClase = className
     ? `${clasePorDefecto} ${className}`
     : clasePorDefecto;
